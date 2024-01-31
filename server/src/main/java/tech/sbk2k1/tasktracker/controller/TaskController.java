@@ -1,10 +1,7 @@
 package tech.sbk2k1.tasktracker.controller;
 
-import java.sql.Date;
 import java.util.List;
-import java.util.Optional;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.ConstraintViolationException;
 import tech.sbk2k1.tasktracker.model.TaskDTO;
-import tech.sbk2k1.tasktracker.repository.TaskRepository;
-
 import tech.sbk2k1.tasktracker.response.AbstractResponse;
 import tech.sbk2k1.tasktracker.response.ErrorResponse;
 import tech.sbk2k1.tasktracker.response.TaskSuccess;
@@ -28,9 +23,6 @@ import tech.sbk2k1.tasktracker.services.TaskServices;
 
 @RestController
 public class TaskController {
-
-  @Autowired
-  private TaskRepository taskRepo;
 
   @Autowired
   private TaskServices taskServices;
@@ -53,7 +45,7 @@ public class TaskController {
   }
 
   // create a task (POST /task)
-  @PostMapping("/task")
+  @PostMapping("/tasks")
   public ResponseEntity<? extends AbstractResponse> createTask(@RequestBody TaskDTO task) {
     try {
       // invoking create service
@@ -74,7 +66,7 @@ public class TaskController {
   }
 
   // update a task (PUT /task)
-  @PutMapping("/task")
+  @PutMapping("/tasks")
   public ResponseEntity<? extends AbstractResponse> updateTask(@RequestBody TaskDTO newData) {
     try {
       // invoking update service
@@ -94,7 +86,7 @@ public class TaskController {
   }
 
   // delete a task (DELETE /task/:id)
-  @DeleteMapping("/task/{id}")
+  @DeleteMapping("/tasks/{id}")
   public ResponseEntity<? extends AbstractResponse> deleteTask(@PathVariable String id) {
     try {
       // invoking delete service

@@ -1,54 +1,93 @@
 package tech.sbk2k1.tasktracker.controller;
 
-import java.sql.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.ConstraintViolationException;
-import tech.sbk2k1.tasktracker.model.TaskDTO;
-import tech.sbk2k1.tasktracker.repository.TaskRepository;
-
+import tech.sbk2k1.tasktracker.JWT.JWTHelper;
+import tech.sbk2k1.tasktracker.model.ProjectDTO;
 import tech.sbk2k1.tasktracker.response.AbstractResponse;
+import tech.sbk2k1.tasktracker.response.BasicResponse;
 import tech.sbk2k1.tasktracker.response.ErrorResponse;
-import tech.sbk2k1.tasktracker.response.TaskSuccess;
-import tech.sbk2k1.tasktracker.response.TasksSuccess;
-import tech.sbk2k1.tasktracker.services.TaskServices;
+import tech.sbk2k1.tasktracker.response.UserLoginSuccess;
+import tech.sbk2k1.tasktracker.services.ProjectServices;
 
 @RestController
 public class ProjectController {
 
  @Autowired
- private TaskRepository taskRepo;
+ private ProjectServices projectServices;
 
  @Autowired
- private TaskServices taskServices;
+ private AuthenticationManager manager;
 
- // get all tasks (GET /tasks)
- @GetMapping("/tasks")
- public ResponseEntity<? extends AbstractResponse> getAllTasks() {
-  // fetch all tasks
-  List<TaskDTO> tasks = taskServices.GetTasks();
-  // check if tasks exist and return appropriate response
-  if (tasks.size() > 0) {
+ @Autowired
+ private JWTHelper jwtHelper;
+
+ // / index route
+ @GetMapping("/")
+ public ResponseEntity<? extends AbstractResponse> index() {
+  BasicResponse data = new BasicResponse("success", "Welcome to Task Tracker API");
+  return new ResponseEntity<BasicResponse>(data, HttpStatus.OK);
+ }
+
+ // create user (POST /login)
+ @PostMapping("/project/login")
+ public ResponseEntity<? extends AbstractResponse> Login(@RequestBody ProjectDTO project) {
+  try {
+
+   this.doAuthenticate(project.getUsername(), project.getPassword());
+   // response
+   String token = this.jwtHelper.generateToken(project);
    // creating response message
-   TasksSuccess data = new TasksSuccess("success", tasks);
-   return new ResponseEntity<TasksSuccess>(data, HttpStatus.OK);
-  } else {
-   // response message for no tasks found
-   ErrorResponse error = new ErrorResponse("not found", "No tasks found");
-   return new ResponseEntity<ErrorResponse>(error, HttpStatus.NOT_FOUND);
+   UserLoginSuccess data = new UserLoginSuccess("success", token);
+   return new ResponseEntity<UserLoginSuccess>(data, HttpStatus.OK);
+  } catch (ConstraintViolationException e) {
+   // error message
+   ErrorResponse error = new ErrorResponse("error", e.getMessage());
+   return new ResponseEntity<ErrorResponse>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+  } catch (RuntimeException e) {
+   // error message
+   ErrorResponse error = new ErrorResponse("error", e.getMessage());
+   return new ResponseEntity<ErrorResponse>(error, HttpStatus.INTERNAL_SERVER_ERROR);
   }
  }
+
+ private void doAuthenticate(String username, String password) {
+  UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, password);
+  try {
+   manager.authenticate(authentication);
+  } catch (Exception e) {
+   throw new BadCredentialsException(e.getMessage());
+  }
+ }
+
+ // signup user (POST /signup)
+ @PostMapping("/project/signup")
+ public ResponseEntity<? extends AbstractResponse> Signup(@RequestBody ProjectDTO project) {
+  try {
+   // fetch all tasks
+   String status = projectServices.signup(project);
+   // creating response message
+   BasicResponse data = new BasicResponse(status, "Account Created");
+   return new ResponseEntity<BasicResponse>(data, HttpStatus.OK);
+  } catch (ConstraintViolationException e) {
+   // error message
+   ErrorResponse error = new ErrorResponse("error", e.getMessage());
+   return new ResponseEntity<ErrorResponse>(error, HttpStatus.UNPROCESSABLE_ENTITY);
+  } catch (RuntimeException e) {
+   // error message
+   ErrorResponse error = new ErrorResponse("error", e.getMessage());
+   return new ResponseEntity<ErrorResponse>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+ }
+
 }

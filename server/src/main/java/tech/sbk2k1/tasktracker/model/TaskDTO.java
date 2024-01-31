@@ -40,6 +40,8 @@ public class TaskDTO {
   @NotNull(message = "Due date cannot be null")
   private Date dueDate;
 
+  private String username;
+
   private Date createdAt;
 
   private Date updatedAt;

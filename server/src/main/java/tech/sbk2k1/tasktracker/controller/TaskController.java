@@ -17,9 +17,9 @@ import jakarta.validation.ConstraintViolationException;
 import tech.sbk2k1.tasktracker.model.TaskDTO;
 import tech.sbk2k1.tasktracker.response.AbstractResponse;
 import tech.sbk2k1.tasktracker.response.ErrorResponse;
-import tech.sbk2k1.tasktracker.response.TaskSuccess;
-import tech.sbk2k1.tasktracker.response.TasksSuccess;
-import tech.sbk2k1.tasktracker.services.TaskServices;
+import tech.sbk2k1.tasktracker.response.Task.TaskSuccess;
+import tech.sbk2k1.tasktracker.response.Task.TasksSuccess;
+import tech.sbk2k1.tasktracker.services.Task.TaskServices;
 
 @RestController
 public class TaskController {

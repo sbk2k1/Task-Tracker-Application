@@ -1,5 +1,6 @@
 package tech.sbk2k1.tasktracker.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -11,5 +12,7 @@ import tech.sbk2k1.tasktracker.model.TaskDTO;
 public interface TaskRepository extends MongoRepository<TaskDTO, String> {
 
  Optional<TaskDTO> findByTitle(String title);
+
+ List<TaskDTO> findAllByUsername(String username);
 
 }

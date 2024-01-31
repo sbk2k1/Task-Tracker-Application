@@ -1,4 +1,4 @@
-package tech.sbk2k1.tasktracker.services;
+package tech.sbk2k1.tasktracker.services.Task;
 
 import java.util.List;
 

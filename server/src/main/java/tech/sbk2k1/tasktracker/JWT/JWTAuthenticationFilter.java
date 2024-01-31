@@ -19,7 +19,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tech.sbk2k1.tasktracker.model.ProjectDTO;
-import tech.sbk2k1.tasktracker.services.ProjectServices;
+import tech.sbk2k1.tasktracker.services.Project.ProjectServices;
 
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {

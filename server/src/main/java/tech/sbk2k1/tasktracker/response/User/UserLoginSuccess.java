@@ -1,4 +1,6 @@
-package tech.sbk2k1.tasktracker.response;
+package tech.sbk2k1.tasktracker.response.User;
+
+import tech.sbk2k1.tasktracker.response.AbstractResponse;
 
 // success class that will contain futher data
 public class UserLoginSuccess extends AbstractResponse {

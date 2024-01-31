@@ -17,8 +17,8 @@ import tech.sbk2k1.tasktracker.model.ProjectDTO;
 import tech.sbk2k1.tasktracker.response.AbstractResponse;
 import tech.sbk2k1.tasktracker.response.BasicResponse;
 import tech.sbk2k1.tasktracker.response.ErrorResponse;
-import tech.sbk2k1.tasktracker.response.UserLoginSuccess;
-import tech.sbk2k1.tasktracker.services.ProjectServices;
+import tech.sbk2k1.tasktracker.response.User.UserLoginSuccess;
+import tech.sbk2k1.tasktracker.services.Project.ProjectServices;
 
 @RestController
 public class ProjectController {

@@ -3,45 +3,52 @@ import { Link } from "react-router-dom";
 import { onPostData } from "../../api";
 import "./register.css";
 
-// notification
+// Import notification context
 import { useNotifications } from "../../context/NotificationContext";
 
+// Register component definition
 export default function Register() {
-  // state variables
+  // State variables for username and password
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // notification
+  // Notification context
   const { createNotification } = useNotifications();
 
-  // handle register
+  // Handle registration form submission
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
+      // Make a POST request to the server with user data
       const res = await onPostData("/project/signup", {
         username,
         password,
       });
+
+      // Check the response status and show appropriate notification
       if (res.data.status === "success") {
         createNotification("success", "User Account Created!", "Success");
-        //clear forms
+
+        // Clear the form fields upon successful registration
         setUsername("");
         setPassword("");
       } else {
         createNotification("error", res.data.message, "Error");
       }
     } catch (err) {
-      console.log(err);
+      // Handle errors and display an error notification
       createNotification("error", err.message, "Error");
     }
   };
 
+  // Render the registration form
   return (
     <div className="register-container">
       <h1>Register</h1>
       <br />
       <form className="register-form" onSubmit={handleRegister}>
         <br />
+        {/* Input field for username */}
         <input
           className="register-input"
           type="text"
@@ -51,6 +58,7 @@ export default function Register() {
           required
         />
         <br />
+        {/* Input field for password */}
         <input
           className="register-input"
           type="password"
@@ -60,11 +68,13 @@ export default function Register() {
           required
         />
         <br />
+        {/* Submit button */}
         <button className="register-button" type="submit">
           Register
         </button>
       </form>
       <br />
+      {/* Link to the login page */}
       <Link to="/login">Login</Link>
     </div>
   );

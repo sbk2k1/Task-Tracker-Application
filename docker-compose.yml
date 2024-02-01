@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  mongodb:
+    image: mongo
+    restart: always
+    networks:
+      - your-network
+    volumes:
+      - mongodb-data:/data/db
+
+  spring-app:
+    build:
+      context: ./server
+    depends_on:
+      - mongodb
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    networks:
+      - your-network
+    volumes:
+      - ./server/config/mongodb-url.txt:/app/config/mongodb-url.txt:ro
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/tasks-manager-api
+      - SPRING_SECURIY_USERNAME=admin
+      - SPRING_SECURIY_PASSWORD=admin
+
+networks:
+  your-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:

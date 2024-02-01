@@ -10,11 +10,6 @@ export default function App() {
         <Switch>
           <Route
             exact
-            path="/about"
-            component={loadable(() => import("./pages/about/about"))}
-          />
-          <Route
-            exact
             path="/login"
             component={loadable(() => import("./pages/login/login"))}
           />
@@ -36,7 +31,6 @@ export default function App() {
           <Route component={loadable(() => import("./pages/404"))} />
         </Switch>
       </div>
-      {/* <NotificationContainer /> */}
     </Router>
   );
 }

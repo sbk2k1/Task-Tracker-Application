@@ -49,7 +49,11 @@ export default function Dashboard() {
         if (res.data.status === "success") {
           setTasks(res.data.data);
           setGraphLoad((graphLoad) => !graphLoad);
-          createNotification("success", "Tasks fetched Successfully!", "Success");
+          createNotification(
+            "success",
+            "Tasks fetched Successfully!",
+            "Success",
+          );
           setActive(res.data.data[0]);
         } else {
           // create a notification
@@ -67,9 +71,6 @@ export default function Dashboard() {
         }
       }
       setLoading(false);
-
-
-
     }
 
     fetchData();
@@ -78,7 +79,6 @@ export default function Dashboard() {
     const sock = new SockJS("http://localhost:8080/ws");
     stompClient = over(sock);
     stompClient.connect({}, onConnected, onError);
-
   }, []);
 
   // ------------------------- WEBSOCKET -------------------------
@@ -110,7 +110,7 @@ export default function Dashboard() {
           // if data.task.id is present in tasks, update it
           setTasks((prevTasks) => {
             const updatedTasks = prevTasks.map((task) =>
-              task.id === data.task.id ? { ...task, ...data.task } : task
+              task.id === data.task.id ? { ...task, ...data.task } : task,
             );
             return updatedTasks;
           });
@@ -121,10 +121,11 @@ export default function Dashboard() {
             // change active task to first task
             setActive(prevTasks[0]);
             // change color of first button to active
-            document.getElementsByClassName("connection-button")[0].classList.add("active-button");
+            document
+              .getElementsByClassName("connection-button")[0]
+              .classList.add("active-button");
             return prevTasks.filter((task) => task.id !== data.task.id);
-          }
-          );
+          });
           break;
         default:
           break;
@@ -132,12 +133,16 @@ export default function Dashboard() {
     }
   };
 
-
   // ------------------------- PAGINATION -------------------------
 
   const getNextPage = async () => {
     try {
-      const res = await onGetData("/tasks?pageNumber=" + (pageNumber.current + 1) + "&pageSize=" + pageSize);
+      const res = await onGetData(
+        "/tasks?pageNumber=" +
+          (pageNumber.current + 1) +
+          "&pageSize=" +
+          pageSize,
+      );
       if (res.data.status === "success") {
         setTasks(res.data.data);
         setGraphLoad((graphLoad) => !graphLoad);
@@ -147,7 +152,9 @@ export default function Dashboard() {
         // if page number is 0, enable previous button
         if (pageNumber.current === 0) {
           // enable previous button
-          document.getElementsByClassName("pagination")[0].childNodes[0].classList.remove("disabled");
+          document
+            .getElementsByClassName("pagination")[0]
+            .childNodes[0].classList.remove("disabled");
         }
 
         // increment page number ref
@@ -156,9 +163,10 @@ export default function Dashboard() {
         // if tasks length is less than pageSize, disable next button
         if (res.data.data.length < pageSize) {
           // disable next button
-          document.getElementsByClassName("pagination")[0].childNodes[1].classList.add("disabled");
+          document
+            .getElementsByClassName("pagination")[0]
+            .childNodes[1].classList.add("disabled");
         }
-
       } else {
         // create a notification
         createNotification("error", res.data.message, "Error");
@@ -168,16 +176,20 @@ export default function Dashboard() {
       if (err.response.data.status === "not found") {
         // inform user that no connection is present
         createNotification("info", "No More Tasks in Workspace", "Information");
-        console.log(pageNumber.current);
       } else {
         createNotification("error", err.data.message, "Error");
       }
     }
-  }
+  };
 
   const getPreviousPage = async () => {
     try {
-      const res = await onGetData("/tasks?pageNumber=" + (pageNumber.current - 1) + "&pageSize=" + pageSize);
+      const res = await onGetData(
+        "/tasks?pageNumber=" +
+          (pageNumber.current - 1) +
+          "&pageSize=" +
+          pageSize,
+      );
       if (res.data.status === "success") {
         setTasks(res.data.data);
         setGraphLoad((graphLoad) => !graphLoad);
@@ -187,7 +199,9 @@ export default function Dashboard() {
         // if page number is 1, disable previous button
         if (pageNumber.current === 1) {
           // disable previous button
-          document.getElementsByClassName("pagination")[0].childNodes[0].classList.add("disabled");
+          document
+            .getElementsByClassName("pagination")[0]
+            .childNodes[0].classList.add("disabled");
         }
 
         // decrement page number ref
@@ -196,7 +210,9 @@ export default function Dashboard() {
         // if tasks length is pageSize, enable next button
         if (res.data.data.length === pageSize) {
           // enable next button
-          document.getElementsByClassName("pagination")[0].childNodes[1].classList.remove("disabled");
+          document
+            .getElementsByClassName("pagination")[0]
+            .childNodes[1].classList.remove("disabled");
         }
       } else {
         // create a notification
@@ -205,8 +221,7 @@ export default function Dashboard() {
     } catch (err) {
       console.log(err);
     }
-  }
-
+  };
 
   // ------------------------- HANDLERS -------------------------
 
@@ -238,21 +253,21 @@ export default function Dashboard() {
   const handleActiveDescription = (e) => {
     e.preventDefault();
     setActive({ ...active, description: e.target.value });
-  }
+  };
 
   const handleActiveCompleted = (e) => {
     e.preventDefault();
     setActive({ ...active, completed: e.target.value });
-  }
+  };
 
   const handleActiveDueDate = (e) => {
     e.preventDefault();
     setActive({ ...active, dueDate: e.target.value });
-  }
+  };
 
   // ------------------------- API CALLS -------------------------
 
-  const handleEdit = async (e) => {
+  const handleEdit = async () => {
     try {
       const res = await onPutData("/tasks", active);
       if (res.data.status === "success") {
@@ -273,7 +288,7 @@ export default function Dashboard() {
       }
     }
   };
-  const handleDelete = async (e) => {
+  const handleDelete = async () => {
     try {
       const res = await onDeleteData("/tasks/" + active.id);
       if (res.data.status === "deleted") {
@@ -283,7 +298,9 @@ export default function Dashboard() {
           // change active task to first task
           setActive(prevTasks[0]);
           // change color of first button to active
-          document.getElementsByClassName("connection-button")[0].classList.add("active-button");
+          document
+            .getElementsByClassName("connection-button")[0]
+            .classList.add("active-button");
           return prevTasks.filter((task) => task.id !== active.id);
         });
       } else {
@@ -343,7 +360,6 @@ export default function Dashboard() {
 
   return (
     <div className="text-center">
-
       <h1>Tasks</h1>
       <button
         onClick={() => {
@@ -378,38 +394,33 @@ export default function Dashboard() {
             handleDelete={handleDelete}
           />
         </>
-
       )}
 
-      {page === "dashboard" && (<div className="pagination">
-        <button
-          onClick={getPreviousPage}
-          className={pageNumber.current === 0 ? "disabled" : ""}
-        >
-          {"<"}
-        </button>
-        <button
-          onClick={getNextPage}
-        >
-          {">"}
-        </button>
-      </div>
+      {page === "dashboard" && (
+        <div className="pagination">
+          <button
+            onClick={getPreviousPage}
+            className={pageNumber.current === 0 ? "disabled" : ""}
+          >
+            {"<"}
+          </button>
+          <button onClick={getNextPage}>{">"}</button>
+        </div>
       )}
 
-
-      {page === "create" && <CreateTaskSection
-        handleTitle={handleTitle}
-        handleDescription={handleDescription}
-        handleCompleted={handleCompleted}
-        handleDueDate={handleDueDate}
-        createTaskHandle={createTaskHandle}
-        title={title}
-        description={description}
-        completed={completed}
-        dueDate={dueDate}
-      />}
-
-
-    </div >
+      {page === "create" && (
+        <CreateTaskSection
+          handleTitle={handleTitle}
+          handleDescription={handleDescription}
+          handleCompleted={handleCompleted}
+          handleDueDate={handleDueDate}
+          createTaskHandle={createTaskHandle}
+          title={title}
+          description={description}
+          completed={completed}
+          dueDate={dueDate}
+        />
+      )}
+    </div>
   );
 }

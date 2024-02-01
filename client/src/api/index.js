@@ -6,7 +6,6 @@ const base_url = "http://localhost:8080";
 
 // ------------------ API CALLING ------------------ //
 export const onPostData = async (url, data) => {
-
   // if token is present in cookies then add it to header
   if (cookies.get("data")) {
     return await axios.post(base_url + url, data, {
@@ -17,14 +16,13 @@ export const onPostData = async (url, data) => {
       },
     });
   } else {
-
     return await axios.post(base_url + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
       },
     });
-  };
+  }
 };
 
 export const onGetData = async (url) => {

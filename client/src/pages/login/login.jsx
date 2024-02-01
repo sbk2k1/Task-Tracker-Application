@@ -4,7 +4,7 @@ import { onPostData, setData } from "../../api";
 import "./login.css";
 
 // notification
-import { useNotifications } from "../..../../../context/NotificationContext";
+import { useNotifications } from "../../context/NotificationContext";
 
 export default function Login() {
   // state variables

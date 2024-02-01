@@ -5,9 +5,11 @@
   min-height: 100vh;
   height: fit-content;
   padding-bottom: 50px;
-  background-image: radial-gradient(circle at 10% 20%,
-      rgb(69, 86, 102) 0%,
-      rgb(34, 34, 34) 90%);
+  background-image: radial-gradient(
+    circle at 10% 20%,
+    rgb(69, 86, 102) 0%,
+    rgb(34, 34, 34) 90%
+  );
 }
 
 h1 {
@@ -62,8 +64,6 @@ button:focus {
   background-color: #007bff;
   color: #fff;
 }
-
-
 
 .connections {
   display: flex;
@@ -126,16 +126,18 @@ button:focus {
 .details button {
   margin-top: 15px;
   width: 25%;
-  background-color: #007BFF;
+  background-color: #007bff;
   color: #ffffff;
 }
 
 .choice {
-  background: radial-gradient(circle at 7.5% 24%,
-      rgb(237, 161, 193) 0%,
-      rgb(250, 178, 172) 25.5%,
-      rgb(190, 228, 210) 62.3%,
-      rgb(215, 248, 247) 93.8%);
+  background: radial-gradient(
+    circle at 7.5% 24%,
+    rgb(237, 161, 193) 0%,
+    rgb(250, 178, 172) 25.5%,
+    rgb(190, 228, 210) 62.3%,
+    rgb(215, 248, 247) 93.8%
+  );
   width: 90%;
   margin-left: auto;
   margin-right: auto;

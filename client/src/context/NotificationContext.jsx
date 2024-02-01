@@ -10,7 +10,7 @@ const NotificationContext = createContext(null);
 export function useNotifications() {
   return useContext(NotificationContext);
 }
-
+// Notifications
 export function NotificationProvider(props) {
   const createNotification = (type, message, title) => {
     switch (type) {

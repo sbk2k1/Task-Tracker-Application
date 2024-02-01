@@ -38,7 +38,7 @@ public class TaskDTO {
   private Boolean completed;
 
   @NotNull(message = "Due date cannot be null")
-  private Date dueDate;
+  private String dueDate;
 
   private String username;
 

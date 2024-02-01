@@ -5,21 +5,18 @@ services:
     image: mongo
     restart: always
     networks:
-      - your-network
+      - task-network
     volumes:
       - mongodb-data:/data/db
 
   spring-app:
-    build:
-      context: ./server
+    image: sbk2k1/taskapp-spring-app:4.0.0
     depends_on:
       - mongodb
     expose:
       - 8080
-    ports:
-      - 8080:8080
     networks:
-      - your-network
+      - task-network
     volumes:
       - ./server/config/mongodb-url.txt:/app/config/mongodb-url.txt:ro
     environment:
@@ -27,8 +24,21 @@ services:
       - SPRING_SECURIY_USERNAME=admin
       - SPRING_SECURIY_PASSWORD=admin
 
+  react-app:
+    image: sbk2k1/taskapp-react-app:4.0.0
+    depends_on:
+      - spring-app
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    networks:
+      - task-network
+    volumes:
+      - ./client/src/config.json:/app/src/config.json:ro
+
 networks:
-  your-network:
+  task-network:
     driver: bridge
 
 volumes:

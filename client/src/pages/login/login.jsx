@@ -20,7 +20,7 @@ export default function Login() {
     e.preventDefault();
     const data = { username, password };
     try {
-      const res = await onPostData("/project/login", data);
+      const res = await onPostData("project/login", data);
 
       if (res.status === 200) {
         // make data object with res.data.token and username
@@ -32,7 +32,7 @@ export default function Login() {
         setRedirect(true);
       }
     } catch (err) {
-      createNotification("error", err.message, "Error");
+      createNotification("error", "No Such Credentials", "Error");
     }
   };
 

@@ -45,7 +45,7 @@ export default function Dashboard() {
     }
     async function fetchData() {
       try {
-        const res = await onGetData(`/tasks?pageNumber=0&pageSize=${pageSize}`);
+        const res = await onGetData(`tasks?pageNumber=0&pageSize=${pageSize}`);
         if (res.data.status === "success") {
           setTasks(res.data.data);
           setGraphLoad((graphLoad) => !graphLoad);
@@ -76,15 +76,16 @@ export default function Dashboard() {
     fetchData();
 
     // ------------------------- WEBSOCKET INIT-------------------------
-    const sock = new SockJS("http://localhost:8080/ws");
+    const sock = new SockJS("/ws");
     stompClient = over(sock);
+    stompClient.debug = null;
     stompClient.connect({}, onConnected, onError);
   }, []);
 
   // ------------------------- WEBSOCKET -------------------------
 
   const onConnected = () => {
-    stompClient.subscribe("/changes", onTaskChanged);
+    stompClient.subscribe("changes", onTaskChanged);
   };
 
   const onError = (err) => {
@@ -118,12 +119,18 @@ export default function Dashboard() {
         case "DELETED":
           // if data.task.id is present in tasks, delete it
           setTasks((prevTasks) => {
-            // change active task to first task
-            setActive(prevTasks[0]);
-            // change color of first button to active
-            document
-              .getElementsByClassName("connection-button")[0]
-              .classList.add("active-button");
+
+            // change active to null if active task is deleted
+            if (active.id === data.task.id) {
+              // remove active button class
+              try {
+                setActive({});
+                document.getElementsByClassName("active-button connection-button")[0].classList.remove("active-button");
+              } catch (err) {
+                console.log(err);
+              }
+            }
+
             return prevTasks.filter((task) => task.id !== data.task.id);
           });
           break;
@@ -138,10 +145,10 @@ export default function Dashboard() {
   const getNextPage = async () => {
     try {
       const res = await onGetData(
-        "/tasks?pageNumber=" +
-          (pageNumber.current + 1) +
-          "&pageSize=" +
-          pageSize,
+        "tasks?pageNumber=" +
+        (pageNumber.current + 1) +
+        "&pageSize=" +
+        pageSize,
       );
       if (res.data.status === "success") {
         setTasks(res.data.data);
@@ -185,10 +192,10 @@ export default function Dashboard() {
   const getPreviousPage = async () => {
     try {
       const res = await onGetData(
-        "/tasks?pageNumber=" +
-          (pageNumber.current - 1) +
-          "&pageSize=" +
-          pageSize,
+        "tasks?pageNumber=" +
+        (pageNumber.current - 1) +
+        "&pageSize=" +
+        pageSize,
       );
       if (res.data.status === "success") {
         setTasks(res.data.data);
@@ -269,7 +276,13 @@ export default function Dashboard() {
 
   const handleEdit = async () => {
     try {
-      const res = await onPutData("/tasks", active);
+      const res = await onPutData("tasks", {
+        id: active.id,
+        title: active.title,
+        description: active.description,
+        completed: active.completed,
+        dueDate: active.dueDate,
+      });
       if (res.data.status === "success") {
         createNotification("success", "Task Updated Successfully!", "Success");
       } else {
@@ -281,28 +294,35 @@ export default function Dashboard() {
       if (err.response.data.status === "not found") {
         // inform user that no connection is present
         createNotification("info", "No Tasks in Workspace", "Information");
-        setTasks([]);
+        window.location.reload();
         setGraphLoad((graphLoad) => !graphLoad);
       } else {
         createNotification("error", err.data.message, "Error");
       }
     }
   };
+
   const handleDelete = async () => {
     try {
-      const res = await onDeleteData("/tasks/" + active.id);
+      const res = await onDeleteData("tasks/" + active.id);
       if (res.data.status === "deleted") {
         createNotification("success", "Task Deleted Successfully!", "Success");
         // remove task from tasks without reloading
         setTasks((prevTasks) => {
           // change active task to first task
-          setActive(prevTasks[0]);
-          // change color of first button to active
-          document
-            .getElementsByClassName("connection-button")[0]
-            .classList.add("active-button");
+          if (prevTasks.length === 1) {
+            window.location.reload();
+          } else {
+            setActive({});
+          }
           return prevTasks.filter((task) => task.id !== active.id);
         });
+        try {
+          document.getElementsByClassName("active-button connection-button")[0].classList.remove("active-button");
+        }
+        catch (err) {
+          console.log(err);
+        }
       } else {
         // create a notification
         createNotification("error", res.data.message, "Error");
@@ -316,7 +336,7 @@ export default function Dashboard() {
   const createTaskHandle = async (e) => {
     e.preventDefault();
     try {
-      const res = await onPostData("/tasks", {
+      const res = await onPostData("tasks", {
         title,
         description,
         completed,
@@ -326,7 +346,14 @@ export default function Dashboard() {
         createNotification("success", "Task Created Successfully!", "Success");
 
         // add task to tasks without reloading
-        setTasks([...tasks, res.data.data]);
+        setTasks(
+          (prevTasks) => {
+            setActive(res.data.data);
+            if (prevTasks.length !== 0) { return [...prevTasks, res.data.data]; }
+            else { return [res.data.data]; }
+          }
+        );
+
         // reset the form
         setTitle("");
         setDescription("");

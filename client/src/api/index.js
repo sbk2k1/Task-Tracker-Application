@@ -2,13 +2,13 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
-const base_url = "http://localhost:8080";
+const BASE_URL = "http://localhost:8080/";
 
 // ------------------ API CALLING ------------------ //
 export const onPostData = async (url, data) => {
   // if token is present in cookies then add it to header
   if (cookies.get("data")) {
-    return await axios.post(base_url + url, data, {
+    return await axios.post(BASE_URL + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
@@ -16,7 +16,7 @@ export const onPostData = async (url, data) => {
       },
     });
   } else {
-    return await axios.post(base_url + url, data, {
+    return await axios.post(BASE_URL + url, data, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Methods": "POST",
@@ -26,7 +26,7 @@ export const onPostData = async (url, data) => {
 };
 
 export const onGetData = async (url) => {
-  return await axios.get(base_url + url, {
+  return await axios.get(BASE_URL + url, {
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
@@ -36,7 +36,7 @@ export const onGetData = async (url) => {
 };
 
 export const onPutData = async (url, data) => {
-  return await axios.put(base_url + url, data, {
+  return await axios.put(BASE_URL + url, data, {
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Methods": "PUT",
@@ -46,7 +46,7 @@ export const onPutData = async (url, data) => {
 };
 
 export const onDeleteData = async (url) => {
-  return await axios.delete(base_url + url, {
+  return await axios.delete(BASE_URL + url, {
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Methods": "DELETE",

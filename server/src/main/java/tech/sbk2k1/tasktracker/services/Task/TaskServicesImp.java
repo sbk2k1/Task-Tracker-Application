@@ -102,6 +102,7 @@ public class TaskServicesImp implements TaskServices {
       todoToSave.setTitle(newData.getTitle() != null ? newData.getTitle() : todoToSave.getTitle());
       todoToSave
           .setDescription(newData.getDescription() != null ? newData.getDescription() : todoToSave.getDescription());
+      todoToSave.setDueDate(newData.getDueDate() != null ? newData.getDueDate() : todoToSave.getDueDate());
       todoToSave.setUpdatedAt(new Date(System.currentTimeMillis()));
       todoToSave.setUsername(newData.getUsername() != null ? newData.getUsername() : todoToSave.getUsername());
 

@@ -20,7 +20,7 @@ export default function Register() {
     e.preventDefault();
     try {
       // Make a POST request to the server with user data
-      const res = await onPostData("/project/signup", {
+      const res = await onPostData("project/signup", {
         username,
         password,
       });
@@ -32,12 +32,10 @@ export default function Register() {
         // Clear the form fields upon successful registration
         setUsername("");
         setPassword("");
-      } else {
-        createNotification("error", res.data.message, "Error");
       }
     } catch (err) {
       // Handle errors and display an error notification
-      createNotification("error", err.message, "Error");
+      createNotification("error", "User already exists!", "Error");
     }
   };
 

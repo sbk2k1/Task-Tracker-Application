@@ -41,10 +41,11 @@ function TasksSection({
       {!loading && (
         <div className="connections">
           <div className="connection">
-            {tasks &&
+            {(tasks.length !== 0) &&
               tasks.map((task, index) => (
                 <button
-                  key={task.id}
+                  key={task.id
+                  }
                   onClick={(e) => {
                     handleTask(e, task);
                   }}
@@ -86,10 +87,10 @@ function TasksSection({
                 <option value="false">False</option>
               </select>
               <input
-                type="text"
+                type="date"
                 placeholder="Due Date"
                 onChange={handleActiveDueDate}
-                value={active.dueDate.toString().split("T")[0]}
+                value={active.dueDate.split("T")[0]}
                 required
               />
               {/* two buttons to update and delete with external onclicks */}
@@ -99,8 +100,9 @@ function TasksSection({
             </div>
           )}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
 

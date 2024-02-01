@@ -1,17 +1,15 @@
 import React, { useState } from "react";
-import { Link, Redirect } from "react-router-dom";
-import { onPostData, setData } from "../../api";
+import { Link } from "react-router-dom";
+import { onPostData } from "../../api";
 import "./register.css";
 
 // notification
-import { useNotifications } from "../..../../../context/NotificationContext";
+import { useNotifications } from "../../context/NotificationContext";
 
 export default function Register() {
   // state variables
-  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [redirect, setRedirect] = useState(false);
 
   // notification
   const { createNotification } = useNotifications();
@@ -24,7 +22,7 @@ export default function Register() {
         username,
         password,
       });
-      if (res.data.status == "success") {
+      if (res.data.status === "success") {
         createNotification("success", "User Account Created!", "Success");
         //clear forms
         setUsername("");
@@ -37,11 +35,6 @@ export default function Register() {
       createNotification("error", err.message, "Error");
     }
   };
-
-  // redirect to home if logged in
-  if (redirect) {
-    return <Redirect to="/" />;
-  }
 
   return (
     <div className="register-container">

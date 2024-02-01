@@ -9,17 +9,36 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import jakarta.validation.ConstraintViolationException;
 import tech.sbk2k1.tasktracker.model.TaskDTO;
 import tech.sbk2k1.tasktracker.repository.TaskRepository;
+import tech.sbk2k1.tasktracker.services.Socket.TaskUpdate;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Service
 public class TaskServicesImp implements TaskServices {
 
   @Autowired
   private TaskRepository taskRepo;
+
+  @Autowired
+  private SimpMessagingTemplate simpMessagingTemplate;
+
+  public void taskCreated(TaskDTO task) {
+    TaskUpdate taskUpdate = new TaskUpdate(task, "CREATED");
+    simpMessagingTemplate.convertAndSend("/changes", taskUpdate);
+  }
+
+  public void taskUpdated(TaskDTO task) {
+    TaskUpdate taskUpdate = new TaskUpdate(task, "UPDATED");
+    simpMessagingTemplate.convertAndSend("/changes", taskUpdate);
+  }
+
+  public void taskDeleted(TaskDTO task) {
+    TaskUpdate taskUpdate = new TaskUpdate(task, "DELETED");
+    simpMessagingTemplate.convertAndSend("/changes", taskUpdate);
+  }
 
   @Override
   public void CreateTask(TaskDTO task) throws RuntimeException, ConstraintViolationException {
@@ -38,6 +57,9 @@ public class TaskServicesImp implements TaskServices {
       task.setCreatedAt(new Date(System.currentTimeMillis()));
       task.setUsername(username);
       taskRepo.save(task);
+
+      // send created task to websocket
+      taskCreated(task);
     }
   }
 
@@ -86,6 +108,9 @@ public class TaskServicesImp implements TaskServices {
       // save data
       taskRepo.save(todoToSave);
 
+      // send updated data to websocket
+      taskUpdated(todoToSave);
+
       // return updated data
       return todoToSave;
     }
@@ -111,6 +136,10 @@ public class TaskServicesImp implements TaskServices {
       }
       // delete task
       taskRepo.deleteById(id);
+
+      // send deleted task to websocket
+      taskDeleted(task.get());
+
       // return deleted task
       return task.get();
     }

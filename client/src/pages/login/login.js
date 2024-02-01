@@ -22,7 +22,7 @@ export default function Login() {
     try {
       const res = await onPostData("/project/login", data);
 
-      if (res.status == 200) {
+      if (res.status === 200) {
         // make data object with res.data.token and username
         const data = {
           token: res.data.token,

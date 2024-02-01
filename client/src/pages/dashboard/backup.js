@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Redirect } from "react-router-dom";
 import {
   onGetData,
   isUser,
   onPostData,
   onDeleteData,
   onPutData,
-  getUsername,
-  removeData,
+  getUsername
 } from "../../api";
 import { useNotifications } from "../../context/NotificationContext";
 import "./dashboard.css";
+import { Dna } from "react-loader-spinner";
 import { over } from "stompjs";
 import SockJS from "sockjs-client";
 
-import TasksSection from "./TaskSection";
-import CreateTaskSection from "./CreateTaskSection";
-
 var stompClient = null;
 const pageSize = 5;
-export default function Dashboard() {
+export default function Dashboard(props) {
+
+  const [logout, setLogout] = useState(false);
+  const [redirect, setRedirect] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [page, setPage] = useState("dashboard");
   const [title, setTitle] = useState("");
@@ -31,6 +32,7 @@ export default function Dashboard() {
   // set page number as ref to persist value
   const pageNumber = useRef(0);
 
+
   // loader
   const [loading, setLoading] = useState(true);
 
@@ -39,14 +41,12 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isUser()) {
       createNotification("error", "Please Login First", "Error");
-      removeData();
-      // set href to /home
-      window.location.href = "/login";
+      setLogout(true);
     }
     async function fetchData() {
       try {
         const res = await onGetData(`/tasks?pageNumber=0&pageSize=${pageSize}`);
-        if (res.data.status === "success") {
+        if (res.data.status == "success") {
           setTasks(res.data.data);
           setGraphLoad((graphLoad) => !graphLoad);
           createNotification("success", "Tasks fetched Successfully!", "Success");
@@ -74,14 +74,12 @@ export default function Dashboard() {
 
     fetchData();
 
-    // ------------------------- WEBSOCKET INIT-------------------------
+    // ------------------------- WEBSOCKET -------------------------
     const sock = new SockJS("http://localhost:8080/ws");
     stompClient = over(sock);
     stompClient.connect({}, onConnected, onError);
 
   }, []);
-
-  // ------------------------- WEBSOCKET -------------------------
 
   const onConnected = () => {
     stompClient.subscribe("/changes", onTaskChanged);
@@ -98,47 +96,39 @@ export default function Dashboard() {
     } else {
       switch (data.changeType) {
         case "CREATED":
-          // if task length is less than pageSize, add task to tasks
-          setTasks((prevTasks) => {
-            if (prevTasks.length < pageSize) {
-              return [...prevTasks, data.task];
-            }
-            return prevTasks;
-          });
+          console.log("created");
           break;
         case "UPDATED":
-          // if data.task.id is present in tasks, update it
-          setTasks((prevTasks) => {
-            const updatedTasks = prevTasks.map((task) =>
-              task.id === data.task.id ? { ...task, ...data.task } : task
-            );
-            return updatedTasks;
-          });
+          console.log("updated");
           break;
         case "DELETED":
-          // if data.task.id is present in tasks, delete it
-          setTasks((prevTasks) => {
-            // change active task to first task
-            setActive(prevTasks[0]);
-            // change color of first button to active
-            document.getElementsByClassName("connection-button")[0].classList.add("active-button");
-            return prevTasks.filter((task) => task.id !== data.task.id);
-          }
-          );
+          console.log("deleted");
           break;
         default:
           break;
+
       }
     }
   };
 
+  // -------------------------
 
-  // ------------------------- PAGINATION -------------------------
+  useEffect(() => {
+    setActive({});
+  }, [tasks]);
+
+  if (logout) {
+    return <Redirect to="/login" />;
+  }
+
+  if (redirect) {
+    return <Redirect to={redirect} />;
+  }
 
   const getNextPage = async () => {
     try {
       const res = await onGetData("/tasks?pageNumber=" + (pageNumber.current + 1) + "&pageSize=" + pageSize);
-      if (res.data.status === "success") {
+      if (res.data.status == "success") {
         setTasks(res.data.data);
         setGraphLoad((graphLoad) => !graphLoad);
         // createNotification("success", "Tasks fetched Successfully!", "Success");
@@ -178,7 +168,7 @@ export default function Dashboard() {
   const getPreviousPage = async () => {
     try {
       const res = await onGetData("/tasks?pageNumber=" + (pageNumber.current - 1) + "&pageSize=" + pageSize);
-      if (res.data.status === "success") {
+      if (res.data.status == "success") {
         setTasks(res.data.data);
         setGraphLoad((graphLoad) => !graphLoad);
         // createNotification("success", "Tasks fetched Successfully!", "Success");
@@ -207,8 +197,6 @@ export default function Dashboard() {
     }
   }
 
-
-  // ------------------------- HANDLERS -------------------------
 
   const handleTitle = (e) => {
     e.preventDefault();
@@ -250,12 +238,10 @@ export default function Dashboard() {
     setActive({ ...active, dueDate: e.target.value });
   }
 
-  // ------------------------- API CALLS -------------------------
-
   const handleEdit = async (e) => {
     try {
       const res = await onPutData("/tasks", active);
-      if (res.data.status === "success") {
+      if (res.data.status == "success") {
         createNotification("success", "Task Updated Successfully!", "Success");
       } else {
         // create a notification
@@ -276,16 +262,10 @@ export default function Dashboard() {
   const handleDelete = async (e) => {
     try {
       const res = await onDeleteData("/tasks/" + active.id);
-      if (res.data.status === "deleted") {
+      if (res.data.status == "deleted") {
         createNotification("success", "Task Deleted Successfully!", "Success");
         // remove task from tasks without reloading
-        setTasks((prevTasks) => {
-          // change active task to first task
-          setActive(prevTasks[0]);
-          // change color of first button to active
-          document.getElementsByClassName("connection-button")[0].classList.add("active-button");
-          return prevTasks.filter((task) => task.id !== active.id);
-        });
+        setTasks(tasks.filter((task) => task.id !== active.id));
       } else {
         // create a notification
         createNotification("error", res.data.message, "Error");
@@ -305,7 +285,7 @@ export default function Dashboard() {
         completed,
         dueDate: dueDate + "T00:00:00.000+00:00",
       });
-      if (res.data.status === "success") {
+      if (res.data.status == "success") {
         createNotification("success", "Task Created Successfully!", "Success");
 
         // add task to tasks without reloading
@@ -325,8 +305,6 @@ export default function Dashboard() {
     }
   };
 
-  // ---- Function to handle task click ----------
-
   const handleTask = async (e, task) => {
     setActive(task);
     if (document.getElementsByClassName("active-button connection-button")[0]) {
@@ -338,8 +316,6 @@ export default function Dashboard() {
     // add active-button class to clicked button
     e.target.classList.add("active-button");
   };
-
-  // ------------------------- RENDER -------------------------
 
   return (
     <div className="text-center">
@@ -363,25 +339,107 @@ export default function Dashboard() {
       </button>
 
       {page === "dashboard" && (
-        <>
-          <TasksSection
-            loading={loading}
-            tasks={tasks}
-            graphLoad={graphLoad}
-            active={active}
-            handleTask={handleTask}
-            handleActiveTitle={handleActiveTitle}
-            handleActiveDescription={handleActiveDescription}
-            handleActiveCompleted={handleActiveCompleted}
-            handleActiveDueDate={handleActiveDueDate}
-            handleEdit={handleEdit}
-            handleDelete={handleDelete}
-          />
-        </>
+        <div className="choice">
+
+          {loading && (
+            <Dna
+              visible={true}
+              height="80"
+              width="80"
+              ariaLabel="dna-loading"
+              wrapperStyle={{}}
+              wrapperClass="dna-wrapper"
+              className="connections"
+            />
+          )}
+
+          {!loading && tasks.length == 0 && (
+            <>
+              <br />
+              <p>No Connection in Workspace</p>
+            </>
+          )}
+
+          {!loading && (
+            <div className="connections">
+              <div className="connection">
+                {tasks &&
+                  tasks.map((task, index) => (
+                    <button
+                      key={task.id}
+                      onClick={(e) => {
+                        handleTask(e, task);
+                      }}
+                      // make first button active by default
+                      className={
+                        index === 0
+                          ? "active-button connection-button"
+                          : "connection-button"
+                      }
+                    >
+                      {task.title}
+                    </button>
+                  ))}
+              </div>
+              {(graphLoad || !graphLoad) && active.title && (<div className="details">
+                <input
+                  type="text"
+                  placeholder="Title"
+                  onChange={handleActiveTitle}
+                  value={active.title}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Description"
+                  onChange={handleActiveDescription}
+                  value={active.description}
+                  required
+                />
+                <select
+                  type="text"
+                  placeholder="Completed"
+                  onChange={handleActiveCompleted}
+                  value={active.completed}
+                  required
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Due Date"
+                  onChange={handleActiveDueDate}
+                  value={
+                    active.dueDate.toString().split("T")[0]
+                  }
+                  required
+                />
+                {/* two buttons to update and delete with external onclicks */}
+                <button
+                  onClick={handleEdit}
+                >
+                  Update Task
+                </button>
+
+                <button
+                  onClick={handleDelete}
+                >
+                  Delete Task
+                </button>
+
+
+
+              </div>)}
+            </div>
+          )}
+
+
+        </div>
 
       )}
 
-      {page === "dashboard" && (<div className="pagination">
+      {page == "dashboard" && (<div className="pagination">
         <button
           onClick={getPreviousPage}
           className={pageNumber.current === 0 ? "disabled" : ""}
@@ -397,17 +455,45 @@ export default function Dashboard() {
       )}
 
 
-      {page === "create" && <CreateTaskSection
-        handleTitle={handleTitle}
-        handleDescription={handleDescription}
-        handleCompleted={handleCompleted}
-        handleDueDate={handleDueDate}
-        createTaskHandle={createTaskHandle}
-        title={title}
-        description={description}
-        completed={completed}
-        dueDate={dueDate}
-      />}
+      {page === "create" && (
+        <div className="choice">
+          <div className="create">
+            <h3>Create a Task</h3>
+            <input
+              type="text"
+              placeholder="Title"
+              onChange={handleTitle}
+              value={title}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Description"
+              onChange={handleDescription}
+              value={description}
+              required
+            />
+            <select
+              type="text"
+              placeholder="Completed"
+              onChange={handleCompleted}
+              value={completed}
+              required
+            >
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+            <input
+              type="date"
+              placeholder="Due Date"
+              onChange={handleDueDate}
+              value={dueDate}
+              required
+            />
+            <button onClick={createTaskHandle}>Create Task</button>
+          </div>
+        </div>
+      )}
 
 
     </div >

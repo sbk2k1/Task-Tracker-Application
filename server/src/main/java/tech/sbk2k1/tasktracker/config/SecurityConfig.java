@@ -42,6 +42,7 @@ public class SecurityConfig {
         .authorizeRequests(authorize -> authorize
             .requestMatchers("/project/**").permitAll() // Allow all "/project/..." routes without authentication
             .requestMatchers("/").permitAll()
+            .requestMatchers("/ws/**").permitAll()
             .anyRequest().authenticated() // Require authentication for any other routes
         )
         .exceptionHandling(ex -> ex.authenticationEntryPoint(point))

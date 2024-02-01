@@ -32,8 +32,8 @@ public class TaskController {
   // get all tasks (GET /tasks)
   @CrossOrigin(origins = "*")
   @GetMapping("/tasks")
-  public ResponseEntity<? extends AbstractResponse> getAllTasks(@RequestParam(defaultValue = "0") int pageNumber,
-      @RequestParam(defaultValue = "10") int pageSize) {
+  public ResponseEntity<? extends AbstractResponse> getAllTasks(@RequestParam int pageNumber,
+      @RequestParam int pageSize) {
     // fetch all tasks
     List<TaskDTO> tasks = taskServices.GetTasks(pageNumber, pageSize);
     // check if tasks exist and return appropriate response

@@ -9,7 +9,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -25,6 +24,7 @@ import tech.sbk2k1.tasktracker.services.Project.ProjectServices;
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
   private Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
+
   @Autowired
   private JWTHelper jwtHelper;
 
@@ -61,8 +61,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
       }
 
-    } else {
-      logger.info("Invalid Header Value !! ");
     }
 
     // usernmane is not null and authentication is null

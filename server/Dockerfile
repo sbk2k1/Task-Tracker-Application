@@ -5,7 +5,7 @@ FROM openjdk:21
 WORKDIR /app
 
 # Copy the JAR file into the container
-COPY target/app.jar /app/app.jar
+COPY target/task-tracker-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # Expose the port your application runs on
 EXPOSE 8080

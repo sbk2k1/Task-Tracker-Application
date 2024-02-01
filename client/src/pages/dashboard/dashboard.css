@@ -172,3 +172,14 @@ button:focus {
   background-color: #f8f8f8;
   color: #333;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}

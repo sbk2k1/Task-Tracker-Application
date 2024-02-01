@@ -25,6 +25,10 @@ export default function Dashboard(props) {
   const [graphLoad, setGraphLoad] = useState(false);
   const [active, setActive] = useState({});
 
+  // set page number as ref to persist value
+  const pageNumber = useRef(0);
+
+
   // loader
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +41,7 @@ export default function Dashboard(props) {
     }
     async function fetchData() {
       try {
-        const res = await onGetData("/tasks");
+        const res = await onGetData("/tasks?pageNumber=0&pageSize=10");
         if (res.data.status == "success") {
           setTasks(res.data.data);
           setGraphLoad((graphLoad) => !graphLoad);
@@ -75,6 +79,78 @@ export default function Dashboard(props) {
   if (redirect) {
     return <Redirect to={redirect} />;
   }
+
+  const getNextPage = async () => {
+    try {
+      const res = await onGetData("/tasks?pageNumber=" + (pageNumber.current + 1) + "&pageSize=10");
+      if (res.data.status == "success") {
+        setTasks(res.data.data);
+        setGraphLoad((graphLoad) => !graphLoad);
+        createNotification("success", "Tasks fetched Successfully!", "Success");
+        setActive(res.data.data[0]);
+
+        // if page number is 0, enable previous button
+        if (pageNumber.current === 0) {
+          // enable previous button
+          document.getElementsByClassName("pagination")[0].childNodes[0].classList.remove("disabled");
+        }
+
+        // increment page number ref
+        pageNumber.current = Number(pageNumber.current) + 1;
+
+        // if tasks length is less than 10, disable next button
+        if (res.data.data.length < 10) {
+          // disable next button
+          document.getElementsByClassName("pagination")[0].childNodes[1].classList.add("disabled");
+        }
+
+      } else {
+        // create a notification
+        createNotification("error", res.data.message, "Error");
+      }
+    } catch (err) {
+      // create a notification
+      if (err.response.data.status === "not found") {
+        // inform user that no connection is present
+        createNotification("info", "No Tasks in Workspace", "Information");
+      } else {
+        createNotification("error", err.data.message, "Error");
+      }
+    }
+  }
+
+  const getPreviousPage = async () => {
+    try {
+      const res = await onGetData("/tasks?pageNumber=" + (pageNumber.current - 1) + "&pageSize=10");
+      if (res.data.status == "success") {
+        setTasks(res.data.data);
+        setGraphLoad((graphLoad) => !graphLoad);
+        createNotification("success", "Tasks fetched Successfully!", "Success");
+        setActive(res.data.data[0]);
+
+        // if page number is 1, disable previous button
+        if (pageNumber.current === 1) {
+          // disable previous button
+          document.getElementsByClassName("pagination")[0].childNodes[0].classList.add("disabled");
+        }
+
+        // decrement page number ref
+        pageNumber.current = Number(pageNumber.current) - 1;
+
+        // if tasks length is 10, enable next button
+        if (res.data.data.length === 10) {
+          // enable next button
+          document.getElementsByClassName("pagination")[0].childNodes[1].classList.remove("disabled");
+        }
+      } else {
+        // create a notification
+        createNotification("error", res.data.message, "Error");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
 
   const handleTitle = (e) => {
     e.preventDefault();
@@ -183,11 +259,6 @@ export default function Dashboard(props) {
     }
   };
 
-
-
-
-  const handleSubmit = async (e) => { };
-
   const handleTask = async (e, task) => {
     setActive(task);
     if (document.getElementsByClassName("active-button connection-button")[0]) {
@@ -249,7 +320,7 @@ export default function Dashboard(props) {
                 {tasks &&
                   tasks.map((task, index) => (
                     <button
-                      key={tasks.id}
+                      key={task.id}
                       onClick={(e) => {
                         handleTask(e, task);
                       }}
@@ -316,9 +387,27 @@ export default function Dashboard(props) {
               </div>)}
             </div>
           )}
+
+
         </div>
 
       )}
+
+      {page == "dashboard" && (<div className="pagination">
+        <button
+          onClick={getPreviousPage}
+          className={pageNumber.current === 0 ? "disabled" : ""}
+        >
+          {"<"}
+        </button>
+        <button
+          onClick={getNextPage}
+        >
+          {">"}
+        </button>
+      </div>
+      )}
+
 
       {page === "create" && (
         <div className="choice">
@@ -359,6 +448,8 @@ export default function Dashboard(props) {
           </div>
         </div>
       )}
+
+
     </div >
   );
 }

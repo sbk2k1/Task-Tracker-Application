@@ -15,6 +15,8 @@
 - **ReactJS**: Frontend framework
 - **WebSockets**: Real-time updates
 
+The Application is Deployed onto a Digital Ocean Droplet and can be accessed here: http://137.184.164.163:3000/
+
 ## 2. Dockerization
 
 - The entire application is dockerized.

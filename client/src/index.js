@@ -1,14 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
-
 import App from "./App";
+import { NotificationProvider } from "./context/NotificationContext";
 
-
-
-const rootElement = document.getElementById("root");
 ReactDOM.render(
-  <React.StrictMode>
+  <NotificationProvider>
     <App />
-  </React.StrictMode>,
-  rootElement
+  </NotificationProvider>,
+  document.getElementById("root"),
 );

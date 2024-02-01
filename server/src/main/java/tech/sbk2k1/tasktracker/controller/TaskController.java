@@ -5,12 +5,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.ConstraintViolationException;
@@ -28,10 +30,12 @@ public class TaskController {
   private TaskServices taskServices;
 
   // get all tasks (GET /tasks)
+  @CrossOrigin(origins = "*")
   @GetMapping("/tasks")
-  public ResponseEntity<? extends AbstractResponse> getAllTasks() {
+  public ResponseEntity<? extends AbstractResponse> getAllTasks(@RequestParam(defaultValue = "0") int pageNumber,
+      @RequestParam(defaultValue = "10") int pageSize) {
     // fetch all tasks
-    List<TaskDTO> tasks = taskServices.GetTasks();
+    List<TaskDTO> tasks = taskServices.GetTasks(pageNumber, pageSize);
     // check if tasks exist and return appropriate response
     if (tasks.size() > 0) {
       // creating response message
@@ -44,7 +48,11 @@ public class TaskController {
     }
   }
 
+  // the cross origin annotation here is not working because of a bug in spring
+  //
+
   // create a task (POST /task)
+  @CrossOrigin(origins = "*")
   @PostMapping("/tasks")
   public ResponseEntity<? extends AbstractResponse> createTask(@RequestBody TaskDTO task) {
     try {
@@ -66,6 +74,7 @@ public class TaskController {
   }
 
   // update a task (PUT /task)
+  @CrossOrigin(origins = "*")
   @PutMapping("/tasks")
   public ResponseEntity<? extends AbstractResponse> updateTask(@RequestBody TaskDTO newData) {
     try {
@@ -86,6 +95,7 @@ public class TaskController {
   }
 
   // delete a task (DELETE /task/:id)
+  @CrossOrigin(origins = "*")
   @DeleteMapping("/tasks/{id}")
   public ResponseEntity<? extends AbstractResponse> deleteTask(@PathVariable String id) {
     try {

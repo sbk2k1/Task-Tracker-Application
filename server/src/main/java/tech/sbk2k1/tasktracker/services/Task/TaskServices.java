@@ -11,7 +11,7 @@ public interface TaskServices {
  public void CreateTask(TaskDTO task) throws RuntimeException, ConstraintViolationException;
 
  // read
- public List<TaskDTO> GetTasks() throws RuntimeException;
+ public List<TaskDTO> GetTasks(int pageNumber, int pageSize) throws RuntimeException;
 
  // update
  public TaskDTO UpdateTask(TaskDTO task) throws RuntimeException, ConstraintViolationException;

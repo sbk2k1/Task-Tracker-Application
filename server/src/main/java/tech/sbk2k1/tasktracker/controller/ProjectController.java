@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +34,7 @@ public class ProjectController {
  private JWTHelper jwtHelper;
 
  // / index route
+ @CrossOrigin(origins = "*")
  @GetMapping("/")
  public ResponseEntity<? extends AbstractResponse> index() {
   BasicResponse data = new BasicResponse("success", "Welcome to Task Tracker API");
@@ -40,6 +42,7 @@ public class ProjectController {
  }
 
  // create user (POST /login)
+ @CrossOrigin(origins = "*")
  @PostMapping("/project/login")
  public ResponseEntity<? extends AbstractResponse> Login(@RequestBody ProjectDTO project) {
   try {
@@ -71,6 +74,7 @@ public class ProjectController {
  }
 
  // signup user (POST /signup)
+ @CrossOrigin(origins = "*")
  @PostMapping("/project/signup")
  public ResponseEntity<? extends AbstractResponse> Signup(@RequestBody ProjectDTO project) {
   try {

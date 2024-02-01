@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,14 +42,15 @@ public class TaskServicesImp implements TaskServices {
   }
 
   @Override
-  public List<TaskDTO> GetTasks() throws RuntimeException {
+  public List<TaskDTO> GetTasks(int pageNumber, int pageSize) throws RuntimeException {
 
     // get username from authentication
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String username = authentication.getName();
 
-    // fetch all tasks for the user
-    List<TaskDTO> tasks = taskRepo.findAllByUsername(username);
+    // fetch all tasks for the user using pageable and resolving page
+    PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+    List<TaskDTO> tasks = taskRepo.findAllByUsername(username, pageRequest).getContent();
     // check if tasks exist and return appropriate response
     return tasks;
   }

@@ -39,7 +39,6 @@ public class SecurityConfig {
 
     http
         .csrf().disable()
-        .cors().disable()
         .authorizeRequests(authorize -> authorize
             .requestMatchers("/project/**").permitAll() // Allow all "/project/..." routes without authentication
             .requestMatchers("/").permitAll()

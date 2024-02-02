@@ -43,7 +43,7 @@ The Application is Deployed onto a Digital Ocean Droplet and can be accessed her
    docker-compose up
    ```
 
-## 3. All Instalation method
+## 3. All Installation method
 
 ### 1. Install MongoDB
 
